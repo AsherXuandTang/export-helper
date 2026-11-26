@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>出口监管方式判别助手（演示版 v1.0）</title>
+<style>
+  :root {
+    --primary: #1A2B4A;
+    --text: #2c2c2c;
+    --text-light: #666;
+    --border: #d8d8d8;
+    --bg: #ffffff;
+    --bg-soft: #f7f8fa;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px 56px;
+  }
+  header {
+    padding: 8px 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--primary);
+    letter-spacing: 0.5px;
+  }
+  header p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.5;
+  }
+  .field {
+    margin-bottom: 20px;
+  }
+  .field > label.lbl, .group-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .hint {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  input[type="text"], select {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 15px;
+    color: var(--text);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select {
+    background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%);
+    background-position: calc(100% - 18px) 19px, calc(100% - 13px) 19px;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 34px;
+  }
+  input[type="text"]:focus, select:focus {
+    border-color: var(--primary);
+  }
+  .opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .opt {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .opt input {
+    position: absolute;
+    opacity: 0;
+    width: 0; height: 0;
+    pointer-events: none;
+  }
+  .opt span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color .15s, background .15s, color .15s;
+    line-height: 1.35;
+  }
+  .opt input:checked + span {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+  }
+  .opt input:focus-visible + span {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  button {
+    flex: 1;
+    min-height: 48px;
+    font-size: 16px;
+    font-family: inherit;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--primary);
+    transition: opacity .15s, background .15s;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+  }
+  .btn-primary:active { opacity: .85; }
+  .btn-secondary {
+    background: #fff;
+    color: var(--primary);
+    font-weight: 500;
+  }
+  .btn-secondary:active { background: var(--bg-soft); }
+  .alert {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid #c94a4a;
+    border-radius: 6px;
+    color: #a12b2b;
+    background: #fdf3f3;
+    font-size: 14px;
+  }
+  .alert.show { display: block; }
+
+  /* 结果区 */
+  #result {
+    display: none;
+    margin-top: 32px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+  #result.show { display: block; }
+  .result-code {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: 1px;
+    line-height: 1.15;
+    margin: 0 0 4px;
+  }
+  .result-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 16px;
+  }
+  .conf {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    border-radius: 999px;
+    margin-bottom: 18px;
+    letter-spacing: .5px;
+  }
+  .sec {
+    margin-bottom: 18px;
+  }
+  .sec h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 6px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .sec p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    word-break: break-word;
+  }
+  .sec ul {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .sec ul li {
+    margin-bottom: 4px;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+  .risk-list {
+    padding-left: 0 !important;
+    list-style: none;
+  }
+  .risk-list li {
+    position: relative;
+    padding-left: 16px;
+    margin-bottom: 8px;
+  }
+  .risk-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    background: var(--primary);
+    border-radius: 50%;
+  }
+  .disclaimer {
+    margin-top: 24px;
+    padding: 12px 14px;
+    background: var(--bg-soft);
+    border-left: 3px solid var(--primary);
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.6;
+    border-radius: 0 4px 4px 0;
+  }
+  @media (min-width: 480px) {
+    .opt { flex: 0 0 auto; min-width: 88px; }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>出口监管方式判别助手</h1>
+    <p>输入货物与交易信息，系统给出建议的海关监管方式、依据文号和风险提示。</p>
+  </header>
+
+  <form id="judgeForm" novalidate>
+    <div class="field">
+      <label class="lbl" for="goodsName">商品名称 <span class="hint">（选填，仅用于结果展示）</span></label>
+      <input type="text" id="goodsName" name="goodsName" placeholder="例如：车载充电器" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label class="lbl" for="category">主要品类</label>
+      <select id="category" name="category">
+        <option value="" disabled selected>请选择</option>
+        <option value="汽车零部件">汽车零部件</option>
+        <option value="农产品与食品">农产品与食品</option>
+        <option value="日用百货与小商品">日用百货与小商品</option>
+        <option value="机械设备">机械设备</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <span class="group-label">是否通过海外仓发货</span>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="overseas" value="是"><span>是</span></label>
+        <label class="opt"><input type="radio" name="overseas" value="否"><span>否</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="group-label">买家类型</span>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="buyer" value="境外企业"><span>境外企业（B2B）</span></label>
+        <label class="opt"><input type="radio" name="buyer" value="境外个人"><span>境外个人消费者（B2C）</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="group-label">单票报关货值</span>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="value" value="15万美元及以下"><span>15 万美元及以下</span></label>
+        <label class="opt"><input type="radio" name="value" value="超过15万美元"><span>超过 15 万美元</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="group-label">是否在市场集聚区采购<span class="hint">（经认定的市场采购贸易试点市场）</span></span>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="market" value="是"><span>是</span></label>
+        <label class="opt"><input type="radio" name="market" value="否"><span>否</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="group-label">是否取得增值税进项发票</span>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="invoice" value="有"><span>有</span></label>
+        <label class="opt"><input type="radio" name="invoice" value="无"><span>无</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="group-label">商品是否属于法定检验检疫范围</span>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="inspection" value="是"><span>是</span></label>
+        <label class="opt"><input type="radio" name="inspection" value="否"><span>否</span></label>
+        <label class="opt"><input type="radio" name="inspection" value="不确定"><span>不确定</span></label>
+      </div>
+    </div>
+
+    <div class="alert" id="formAlert">请完成所有必选项</div>
+
+    <div class="actions">
+      <button type="submit" class="btn-primary">生成建议</button>
+      <button type="button" class="btn-secondary" id="resetBtn">重新填写</button>
+    </div>
+  </form>
+
+  <section id="result" aria-live="polite">
+    <div class="result-code" id="rCode"></div>
+    <div class="result-name" id="rName"></div>
+    <span class="conf" id="rConf"></span>
+
+    <div class="sec">
+      <h3>判断路径</h3>
+      <p id="rPath"></p>
+    </div>
+
+    <div class="sec">
+      <h3>政策依据</h3>
+      <p id="rBasis"></p>
+    </div>
+
+    <div class="sec">
+      <h3>需准备的申报材料</h3>
+      <ul id="rMaterials"></ul>
+    </div>
+
+    <div class="sec">
+      <h3>风险提示</h3>
+      <ul class="risk-list" id="rRisks"></ul>
+    </div>
+
+    <div class="disclaimer">
+      本结果由规则库自动生成，仅供参考，不构成申报结论；最终以海关认定及企业确认为准。
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var MATERIALS = {
+    "0110": ["出口报关单", "合同或订单", "商业发票", "装箱单", "报关委托书（如委托）"],
+    "9610": ["出口清单（清单核放）", "订单与支付数据", "物流数据", "企业备案信息"],
+    "9710": ["出口报关单", "平台交易记录", "物流单据"],
+    "9810": ["出口报关单", "海外仓使用或备案证明", "平台成交记录"],
+    "1039": ["市场采购贸易经营者备案", "市场采购商品认定", "报关单", "装箱单"]
+  };
+
+  function judge(data) {
+    var code, name, basis, confidence, path;
+    var risks = [];
+    var over15 = data.value === "超过15万美元";
+    var hasInvoice = data.invoice === "有";
+    var marketYes = data.market === "是";
+    var overseasYes = data.overseas === "是";
+    var isB2B = data.buyer === "境外企业";
+
+    // 规则1
+    if (overseasYes) {
+      code = "9810";
+      name = "跨境电子商务出口海外仓";
+      basis = "海关总署公告2020年第75号";
+      confidence = "高";
+      path = "因选择海外仓发货，优先适用 9810。";
+    }
+    // 规则2
+    else if (!overseasYes && marketYes && !over15 && !hasInvoice) {
+      code = "1039";
+      name = "市场采购";
+      basis = "海关总署公告2019年第221号";
+      confidence = "高";
+      path = "海外仓=否，且在市场集聚区采购、货值≤15万美元、无进项发票，符合 1039 市场采购条件。";
+    }
+    // 规则3
+    else if (!overseasYes && marketYes && (over15 || hasInvoice)) {
+      if (isB2B) {
+        code = "9710"; name = "跨境电子商务企业对企业直接出口";
+        path = "市场采购方式不适用，已改判：因货值超限或已有进项发票，按买家为境外企业改判 9710。";
+      } else {
+        code = "9610"; name = "跨境贸易电子商务";
+        path = "市场采购方式不适用，已改判：因货值超限或已有进项发票，按买家为境外个人改判 9610。";
+      }
+      basis = "海关总署公告2020年第75号";
+      confidence = "中";
+    }
+    // 规则4
+    else if (!overseasYes && !marketYes && isB2B) {
+      code = "9710";
+      name = "跨境电子商务企业对企业直接出口";
+      basis = "海关总署公告2020年第75号";
+      confidence = "中";
+      path = "海外仓=否、非市场集聚区采购，且买家为境外企业，适用 9710。";
+    }
+    // 规则5
+    else if (!overseasYes && !marketYes && !isB2B) {
+      code = "9610";
+      name = "跨境贸易电子商务";
+      basis = "海关总署公告2014年第12号";
+      confidence = "中";
+      path = "海外仓=否、非市场集聚区采购，且买家为境外个人消费者，适用 9610。";
+    }
+    // 规则6
+    else {
+      code = "0110";
+      name = "一般贸易";
+      basis = "海关进出口货物报关单填制规范";
+      confidence = "中";
+      path = "上述规则均不满足，按一般贸易 0110 处理。";
+    }
+
+    // 风险提示
+    if (code === "1039" && over15) {
+      risks.push("市场采购单票报关单货值上限为 15 万美元，本单超限，不适用该方式。");
+    }
+    if ((code === "0110" || code === "9710" || code === "9810") && !hasInvoice) {
+      risks.push("无进项发票通常无法办理出口退税；如在跨境电商综试区内且符合条件，9610 零售出口可适用免税政策（财税〔2018〕103号），建议进一步核实。");
+    }
+    if (code === "9610") {
+      risks.push("9610 采用“清单核放、汇总申报”模式，企业需按规定备案并传输交易、支付、物流数据。");
+    }
+    if (data.inspection === "是") {
+      risks.push("该商品可能属于法定检验检疫范围，出口前需办理相应检验检疫手续。");
+    }
+    if (data.inspection === "不确定") {
+      risks.push("检验检疫属性不明确，建议向报关行或海关确认后再申报。");
+    }
+    if (data.category === "汽车零部件") {
+      risks.push("同类零部件因用途、材质不同可能对应不同归类，建议申请商品归类预裁定（海关总署令第236号）。");
+    }
+    if (confidence === "中" || confidence === "低") {
+      risks.push("本结果为规则推断，未经海关确认，建议申报前向持证报关行复核。");
+    }
+
+    return {
+      code: code,
+      name: name,
+      basis: basis,
+      confidence: confidence,
+      path: path,
+      materials: MATERIALS[code] || [],
+      risks: risks
+    };
+  }
+
+  var form = document.getElementById("judgeForm");
+  var alertBox = document.getElementById("formAlert");
+  var result = document.getElementById("result");
+
+  function getRadio(name) {
+    var el = form.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : "";
+  }
+
+  function collect() {
+    return {
+      goodsName: document.getElementById("goodsName").value.trim(),
+      category: document.getElementById("category").value,
+      overseas: getRadio("overseas"),
+      buyer: getRadio("buyer"),
+      value: getRadio("value"),
+      market: getRadio("market"),
+      invoice: getRadio("invoice"),
+      inspection: getRadio("inspection")
+    };
+  }
+
+  function validate(d) {
+    return d.category !== "" && d.overseas !== "" && d.buyer !== "" &&
+           d.value !== "" && d.market !== "" && d.invoice !== "" && d.inspection !== "";
+  }
+
+  function render(d, r) {
+    var namePrefix = d.goodsName ? d.goodsName + " · " : "";
+    document.getElementById("rCode").textContent = r.code;
+    document.getElementById("rName").textContent = namePrefix + r.name;
+    document.getElementById("rConf").textContent = "置信度：" + r.confidence;
+    document.getElementById("rPath").textContent = r.path;
+    document.getElementById("rBasis").textContent = r.basis;
+
+    var matUl = document.getElementById("rMaterials");
+    matUl.innerHTML = "";
+    r.materials.forEach(function (m) {
+      var li = document.createElement("li");
+      li.textContent = m;
+      matUl.appendChild(li);
+    });
+
+    var riskUl = document.getElementById("rRisks");
+    riskUl.innerHTML = "";
+    if (r.risks.length === 0) {
+      var li = document.createElement("li");
+      li.textContent = "暂无额外风险提示。";
+      riskUl.appendChild(li);
+    } else {
+      r.risks.forEach(function (x) {
+        var li = document.createElement("li");
+        li.textContent = x;
+        riskUl.appendChild(li);
+      });
+    }
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var data = collect();
+    if (!validate(data)) {
+      alertBox.classList.add("show");
+      alertBox.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    alertBox.classList.remove("show");
+    var r = judge(data);
+    render(data, r);
+    result.classList.add("show");
+    result.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    form.reset();
+    alertBox.classList.remove("show");
+    result.classList.remove("show");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+</script>
+</body>
+</html>

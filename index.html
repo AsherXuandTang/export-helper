@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>出口监管方式判别助手（演示版 v1.0）</title>
+<title>出口监管方式判别助手（演示版 v1.1）</title>
 <style>
   :root {
     --primary: #1A2B4A;
@@ -18,247 +18,71 @@
     margin: 0; padding: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 16px; line-height: 1.6;
   }
-  .wrap {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 24px 16px 56px;
-  }
-  header {
-    padding: 8px 0 20px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 24px;
-  }
-  h1 {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 0 0 8px;
-    color: var(--primary);
-    letter-spacing: 0.5px;
-  }
-  header p {
-    margin: 0;
-    font-size: 13px;
-    color: var(--text-light);
-    line-height: 1.5;
-  }
-  .field {
-    margin-bottom: 20px;
-  }
-  .field > label.lbl, .group-label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--text);
-  }
-  .hint {
-    font-size: 12px;
-    color: var(--text-light);
-    font-weight: 400;
-    margin-left: 4px;
-  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 24px 16px 56px; }
+  header { padding: 8px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px; position: relative; }
+  h1 { font-size: 20px; font-weight: 700; margin: 0 0 8px; color: var(--primary); }
+  header p { margin: 0; font-size: 13px; color: var(--text-light); line-height: 1.5; }
+  .field { margin-bottom: 20px; }
+  .field > label.lbl, .group-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .hint { font-size: 12px; color: var(--text-light); font-weight: 400; margin-left: 4px; }
   input[type="text"], select {
-    width: 100%;
-    height: 44px;
-    padding: 0 12px;
-    font-size: 15px;
-    color: var(--text);
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    outline: none;
-    font-family: inherit;
-    appearance: none;
-    -webkit-appearance: none;
+    width: 100%; height: 44px; padding: 0 12px; font-size: 15px; color: var(--text);
+    background: #fff; border: 1px solid var(--border); border-radius: 6px; outline: none; font-family: inherit;
+    appearance: none; -webkit-appearance: none;
   }
-  select {
-    background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%);
-    background-position: calc(100% - 18px) 19px, calc(100% - 13px) 19px;
-    background-size: 5px 5px, 5px 5px;
-    background-repeat: no-repeat;
-    padding-right: 34px;
-  }
-  input[type="text"]:focus, select:focus {
-    border-color: var(--primary);
-  }
-  .opts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .opt {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-  .opt input {
-    position: absolute;
-    opacity: 0;
-    width: 0; height: 0;
-    pointer-events: none;
-  }
+  select { background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); background-position: calc(100% - 18px) 19px, calc(100% - 13px) 19px; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 34px; }
+  input[type="text"]:focus, select:focus { border-color: var(--primary); }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt { flex: 1 1 auto; min-width: 0; }
+  .opt input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
   .opt span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    min-height: 44px;
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: #fff;
-    color: var(--text);
-    cursor: pointer;
-    user-select: none;
-    transition: border-color .15s, background .15s, color .15s;
-    line-height: 1.35;
+    display: flex; align-items: center; justify-content: center; text-align: center; min-height: 44px; padding: 8px 12px;
+    font-size: 14px; border: 1px solid var(--border); border-radius: 6px; background: #fff; color: var(--text);
+    cursor: pointer; user-select: none; transition: border-color .15s, background .15s, color .15s; line-height: 1.35;
   }
-  .opt input:checked + span {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: #fff;
-  }
-  .opt input:focus-visible + span {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-  }
-  .actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 28px;
-  }
+  .opt input:checked + span { border-color: var(--primary); background: var(--primary); color: #fff; }
+  .actions { display: flex; gap: 12px; margin-top: 28px; }
   button {
-    flex: 1;
-    min-height: 48px;
-    font-size: 16px;
-    font-family: inherit;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 1px solid var(--primary);
-    transition: opacity .15s, background .15s;
+    flex: 1; min-height: 48px; font-size: 16px; font-family: inherit; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--primary); transition: opacity .15s, background .15s;
   }
-  .btn-primary {
-    background: var(--primary);
-    color: #fff;
-    font-weight: 600;
-  }
+  .btn-primary { background: var(--primary); color: #fff; font-weight: 600; }
   .btn-primary:active { opacity: .85; }
-  .btn-secondary {
-    background: #fff;
-    color: var(--primary);
-    font-weight: 500;
-  }
-  .btn-secondary:active { background: var(--bg-soft); }
-  .alert {
-    display: none;
-    margin-top: 16px;
-    padding: 12px 14px;
-    border: 1px solid #c94a4a;
-    border-radius: 6px;
-    color: #a12b2b;
-    background: #fdf3f3;
-    font-size: 14px;
-  }
+  .btn-secondary { background: #fff; color: var(--primary); font-weight: 500; }
+  .alert { display: none; margin-top: 16px; padding: 12px 14px; border: 1px solid #c94a4a; border-radius: 6px; color: #a12b2b; background: #fdf3f3; font-size: 14px; }
   .alert.show { display: block; }
-
+  
   /* 结果区 */
-  #result {
-    display: none;
-    margin-top: 32px;
-    border-top: 1px solid var(--border);
-    padding-top: 24px;
-  }
-  #result.show { display: block; }
-  .result-code {
-    font-size: 30px;
-    font-weight: 800;
-    color: var(--primary);
-    letter-spacing: 1px;
-    line-height: 1.15;
-    margin: 0 0 4px;
-  }
-  .result-name {
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text);
-    margin: 0 0 16px;
-  }
-  .conf {
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border: 1px solid var(--primary);
-    color: var(--primary);
-    border-radius: 999px;
-    margin-bottom: 18px;
-    letter-spacing: .5px;
-  }
-  .sec {
-    margin-bottom: 18px;
-  }
-  .sec h3 {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--primary);
-    margin: 0 0 6px;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-  }
-  .sec p {
-    margin: 0;
-    font-size: 14px;
-    color: var(--text);
-    line-height: 1.6;
-    word-break: break-word;
-  }
-  .sec ul {
-    margin: 0;
-    padding-left: 20px;
-    font-size: 14px;
-    color: var(--text);
-  }
-  .sec ul li {
-    margin-bottom: 4px;
-    line-height: 1.55;
-    word-break: break-word;
-  }
-  .risk-list {
-    padding-left: 0 !important;
-    list-style: none;
-  }
-  .risk-list li {
-    position: relative;
-    padding-left: 16px;
-    margin-bottom: 8px;
-  }
-  .risk-list li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 9px;
-    width: 6px;
-    height: 6px;
-    background: var(--primary);
-    border-radius: 50%;
-  }
-  .disclaimer {
-    margin-top: 24px;
-    padding: 12px 14px;
-    background: var(--bg-soft);
-    border-left: 3px solid var(--primary);
-    font-size: 12px;
-    color: var(--text-light);
-    line-height: 1.6;
-    border-radius: 0 4px 4px 0;
-  }
-  @media (min-width: 480px) {
-    .opt { flex: 0 0 auto; min-width: 88px; }
-    h1 { font-size: 22px; }
+  #result { display: none; margin-top: 32px; border-top: 1px solid var(--border); padding-top: 24px; }
+  #result.show { display: block; animation: slideUp 0.4s ease-out; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;}
+  .result-code { font-size: 30px; font-weight: 800; color: var(--primary); letter-spacing: 1px; line-height: 1.15; margin: 0 0 4px; }
+  .result-name { font-size: 17px; font-weight: 600; color: var(--text); margin: 0; }
+  .conf { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border: 1px solid var(--primary); color: var(--primary); border-radius: 999px; white-space: nowrap;}
+  .sec { margin-bottom: 18px; }
+  .sec h3 { font-size: 13px; font-weight: 700; color: var(--primary); margin: 0 0 6px; letter-spacing: .5px; text-transform: uppercase; }
+  .sec p { margin: 0; font-size: 14px; color: var(--text); line-height: 1.6; word-break: break-word; }
+  .sec ul { margin: 0; padding-left: 20px; font-size: 14px; color: var(--text); }
+  .sec ul li { margin-bottom: 4px; line-height: 1.55; word-break: break-word; }
+  .risk-list { padding-left: 0 !important; list-style: none; }
+  .risk-list li { position: relative; padding-left: 16px; margin-bottom: 8px; }
+  .risk-list li::before { content: ""; position: absolute; left: 0; top: 9px; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
+  .disclaimer { margin-top: 24px; padding: 12px 14px; background: var(--bg-soft); border-left: 3px solid var(--primary); font-size: 12px; color: var(--text-light); line-height: 1.6; border-radius: 0 4px 4px 0; }
+  
+  /* 额外工具栏 */
+  .toolbar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: flex-end; }
+  .toolbar button { flex: 0 0 auto; min-height: 36px; padding: 0 12px; font-size: 13px; background: var(--bg-soft); border-color: var(--border); color: var(--text); }
+  .toolbar button:hover { background: #eaeaea; }
+
+  @media print {
+    body { background: #fff; }
+    .wrap { padding: 0; }
+    header, #judgeForm, .actions, .alert, .toolbar { display: none !important; }
+    #result { margin-top: 0; border: none; padding-top: 0; display: block !important; }
   }
 </style>
 </head>
@@ -345,9 +169,19 @@
   </form>
 
   <section id="result" aria-live="polite">
-    <div class="result-code" id="rCode"></div>
-    <div class="result-name" id="rName"></div>
-    <span class="conf" id="rConf"></span>
+    <div class="toolbar">
+      <button type="button" id="copyBtn">复制结果</button>
+      <button type="button" id="printBtn">导出/打印 PDF</button>
+      <button type="button" id="closeBtn">关闭结果</button>
+    </div>
+
+    <div class="result-header">
+      <div>
+        <div class="result-code" id="rCode"></div>
+        <div class="result-name" id="rName"></div>
+      </div>
+      <span class="conf" id="rConf"></span>
+    </div>
 
     <div class="sec">
       <h3>判断路径</h3>
@@ -396,24 +230,13 @@
     var overseasYes = data.overseas === "是";
     var isB2B = data.buyer === "境外企业";
 
-    // 规则1
     if (overseasYes) {
-      code = "9810";
-      name = "跨境电子商务出口海外仓";
-      basis = "海关总署公告2020年第75号";
-      confidence = "高";
+      code = "9810"; name = "跨境电子商务出口海外仓"; basis = "海关总署公告2020年第75号"; confidence = "高";
       path = "因选择海外仓发货，优先适用 9810。";
-    }
-    // 规则2
-    else if (!overseasYes && marketYes && !over15 && !hasInvoice) {
-      code = "1039";
-      name = "市场采购";
-      basis = "海关总署公告2019年第221号";
-      confidence = "高";
+    } else if (!overseasYes && marketYes && !over15 && !hasInvoice) {
+      code = "1039"; name = "市场采购"; basis = "海关总署公告2019年第221号"; confidence = "高";
       path = "海外仓=否，且在市场集聚区采购、货值≤15万美元、无进项发票，符合 1039 市场采购条件。";
-    }
-    // 规则3
-    else if (!overseasYes && marketYes && (over15 || hasInvoice)) {
+    } else if (!overseasYes && marketYes && (over15 || hasInvoice)) {
       if (isB2B) {
         code = "9710"; name = "跨境电子商务企业对企业直接出口";
         path = "市场采购方式不适用，已改判：因货值超限或已有进项发票，按买家为境外企业改判 9710。";
@@ -421,66 +244,27 @@
         code = "9610"; name = "跨境贸易电子商务";
         path = "市场采购方式不适用，已改判：因货值超限或已有进项发票，按买家为境外个人改判 9610。";
       }
-      basis = "海关总署公告2020年第75号";
-      confidence = "中";
-    }
-    // 规则4
-    else if (!overseasYes && !marketYes && isB2B) {
-      code = "9710";
-      name = "跨境电子商务企业对企业直接出口";
-      basis = "海关总署公告2020年第75号";
-      confidence = "中";
+      basis = "海关总署公告2020年第75号"; confidence = "中";
+    } else if (!overseasYes && !marketYes && isB2B) {
+      code = "9710"; name = "跨境电子商务企业对企业直接出口"; basis = "海关总署公告2020年第75号"; confidence = "中";
       path = "海外仓=否、非市场集聚区采购，且买家为境外企业，适用 9710。";
-    }
-    // 规则5
-    else if (!overseasYes && !marketYes && !isB2B) {
-      code = "9610";
-      name = "跨境贸易电子商务";
-      basis = "海关总署公告2014年第12号";
-      confidence = "中";
+    } else if (!overseasYes && !marketYes && !isB2B) {
+      code = "9610"; name = "跨境贸易电子商务"; basis = "海关总署公告2014年第12号"; confidence = "中";
       path = "海外仓=否、非市场集聚区采购，且买家为境外个人消费者，适用 9610。";
-    }
-    // 规则6
-    else {
-      code = "0110";
-      name = "一般贸易";
-      basis = "海关进出口货物报关单填制规范";
-      confidence = "中";
+    } else {
+      code = "0110"; name = "一般贸易"; basis = "海关进出口货物报关单填制规范"; confidence = "中";
       path = "上述规则均不满足，按一般贸易 0110 处理。";
     }
 
-    // 风险提示
-    if (code === "1039" && over15) {
-      risks.push("市场采购单票报关单货值上限为 15 万美元，本单超限，不适用该方式。");
-    }
-    if ((code === "0110" || code === "9710" || code === "9810") && !hasInvoice) {
-      risks.push("无进项发票通常无法办理出口退税；如在跨境电商综试区内且符合条件，9610 零售出口可适用免税政策（财税〔2018〕103号），建议进一步核实。");
-    }
-    if (code === "9610") {
-      risks.push("9610 采用“清单核放、汇总申报”模式，企业需按规定备案并传输交易、支付、物流数据。");
-    }
-    if (data.inspection === "是") {
-      risks.push("该商品可能属于法定检验检疫范围，出口前需办理相应检验检疫手续。");
-    }
-    if (data.inspection === "不确定") {
-      risks.push("检验检疫属性不明确，建议向报关行或海关确认后再申报。");
-    }
-    if (data.category === "汽车零部件") {
-      risks.push("同类零部件因用途、材质不同可能对应不同归类，建议申请商品归类预裁定（海关总署令第236号）。");
-    }
-    if (confidence === "中" || confidence === "低") {
-      risks.push("本结果为规则推断，未经海关确认，建议申报前向持证报关行复核。");
-    }
+    if (code === "1039" && over15) risks.push("市场采购单票报关单货值上限为 15 万美元，本单超限，不适用该方式。");
+    if ((code === "0110" || code === "9710" || code === "9810") && !hasInvoice) risks.push("无进项发票通常无法办理出口退税；如在跨境电商综试区内且符合条件，9610 零售出口可适用免税政策（财税〔2018〕103号），建议进一步核实。");
+    if (code === "9610") risks.push("9610 采用“清单核放、汇总申报”模式，企业需按规定备案并传输交易、支付、物流数据。");
+    if (data.inspection === "是") risks.push("该商品可能属于法定检验检疫范围，出口前需办理相应检验检疫手续。");
+    if (data.inspection === "不确定") risks.push("检验检疫属性不明确，建议向报关行或海关确认后再申报。");
+    if (data.category === "汽车零部件") risks.push("同类零部件因用途、材质不同可能对应不同归类，建议申请商品归类预裁定（海关总署令第236号）。");
+    if (confidence === "中" || confidence === "低") risks.push("本结果为规则推断，未经海关确认，建议申报前向持证报关行复核。");
 
-    return {
-      code: code,
-      name: name,
-      basis: basis,
-      confidence: confidence,
-      path: path,
-      materials: MATERIALS[code] || [],
-      risks: risks
-    };
+    return { code: code, name: name, basis: basis, confidence: confidence, path: path, materials: MATERIALS[code] || [], risks: risks };
   }
 
   var form = document.getElementById("judgeForm");
@@ -496,18 +280,13 @@
     return {
       goodsName: document.getElementById("goodsName").value.trim(),
       category: document.getElementById("category").value,
-      overseas: getRadio("overseas"),
-      buyer: getRadio("buyer"),
-      value: getRadio("value"),
-      market: getRadio("market"),
-      invoice: getRadio("invoice"),
-      inspection: getRadio("inspection")
+      overseas: getRadio("overseas"), buyer: getRadio("buyer"), value: getRadio("value"),
+      market: getRadio("market"), invoice: getRadio("invoice"), inspection: getRadio("inspection")
     };
   }
 
   function validate(d) {
-    return d.category !== "" && d.overseas !== "" && d.buyer !== "" &&
-           d.value !== "" && d.market !== "" && d.invoice !== "" && d.inspection !== "";
+    return d.category !== "" && d.overseas !== "" && d.buyer !== "" && d.value !== "" && d.market !== "" && d.invoice !== "" && d.inspection !== "";
   }
 
   function render(d, r) {
@@ -520,24 +299,14 @@
 
     var matUl = document.getElementById("rMaterials");
     matUl.innerHTML = "";
-    r.materials.forEach(function (m) {
-      var li = document.createElement("li");
-      li.textContent = m;
-      matUl.appendChild(li);
-    });
+    r.materials.forEach(function (m) { var li = document.createElement("li"); li.textContent = m; matUl.appendChild(li); });
 
     var riskUl = document.getElementById("rRisks");
     riskUl.innerHTML = "";
     if (r.risks.length === 0) {
-      var li = document.createElement("li");
-      li.textContent = "暂无额外风险提示。";
-      riskUl.appendChild(li);
+      var li = document.createElement("li"); li.textContent = "暂无额外风险提示。"; riskUl.appendChild(li);
     } else {
-      r.risks.forEach(function (x) {
-        var li = document.createElement("li");
-        li.textContent = x;
-        riskUl.appendChild(li);
-      });
+      r.risks.forEach(function (x) { var li = document.createElement("li"); li.textContent = x; riskUl.appendChild(li); });
     }
   }
 
@@ -561,6 +330,32 @@
     alertBox.classList.remove("show");
     result.classList.remove("show");
     window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  document.getElementById("closeBtn").addEventListener("click", function () {
+    result.classList.remove("show");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // 复制功能
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    var text = "【建议监管方式】\n" + document.getElementById("rCode").textContent + " " + document.getElementById("rName").textContent + "\n\n";
+    text += "【判断路径】\n" + document.getElementById("rPath").textContent + "\n\n";
+    text += "【政策依据】\n" + document.getElementById("rBasis").textContent + "\n\n";
+    text += "【准备材料】\n" + Array.from(document.querySelectorAll("#rMaterials li")).map(li => "- " + li.textContent).join("\n") + "\n\n";
+    text += "【风险提示】\n" + Array.from(document.querySelectorAll("#rRisks li")).map(li => "- " + li.textContent).join("\n") + "\n\n";
+    text += "【声明】本结果仅供参考，最终以海关认定为准。";
+    
+    navigator.clipboard.writeText(text).then(function() {
+      var btn = document.getElementById("copyBtn");
+      btn.textContent = "已复制！";
+      setTimeout(() => btn.textContent = "复制结果", 2000);
+    });
+  });
+
+  // 打印功能
+  document.getElementById("printBtn").addEventListener("click", function () {
+    window.print();
   });
 })();
 </script>
